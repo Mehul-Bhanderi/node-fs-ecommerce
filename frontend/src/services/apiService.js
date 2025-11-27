@@ -1,23 +1,39 @@
 // frontend/src/services/apiService.js
 
 // Detect if running locally or on deployment
-const API_BASE_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:5000' // your local backend URL
-    : 'https://node-fs-ecommerce.onrender.com'; // deployed backend URL
+const isLocalhost = window.location.hostname === 'localhost';
 
-// Helper to handle fetch responses
+// When running `npm start` (CRA dev server), use /api so proxy works.
+// When deployed, talk directly to the Render backend with /api prefix.
+const API_BASE_URL = isLocalhost
+  ? '/api'
+  : 'https://node-fs-ecommerce.onrender.com/api';
+
+// Generic response handler
 const handleResponse = async (response) => {
-  if (response.status === 200 || response.status === 304) {
-    return response.json().catch(() => ({})); // safe fallback for empty JSON
-  } else {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body.error || 'Request failed');
+  if (response.ok) {
+    // Assuming backend always sends JSON
+    return response.json();
   }
+
+  let message = 'Request failed';
+
+  try {
+    const body = await response.json();
+    if (body && body.error) {
+      message = body.error;
+    }
+  } catch {
+    // ignore JSON parse errors, keep default message
+  }
+
+  throw new Error(message);
 };
 
 export const getAllProducts = async () => {
-  const response = await fetch(`${API_BASE_URL}/products`, { cache: 'no-store' });
+  const response = await fetch(`${API_BASE_URL}/products`, {
+    cache: 'no-store',
+  });
   return handleResponse(response);
 };
 
@@ -31,6 +47,8 @@ export const placeOrder = async (orderData) => {
 };
 
 export const getAllOrders = async () => {
-  const response = await fetch(`${API_BASE_URL}/orders`, { cache: 'no-store' });
+  const response = await fetch(`${API_BASE_URL}/orders`, {
+    cache: 'no-store',
+  });
   return handleResponse(response);
 };
