@@ -1,5 +1,4 @@
-// frontend/src/services/apiService.js
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'https://node-fs-ecommerce.onrender.com/api';
 
 export const getAllProducts = async () => {
   const response = await fetch(`${API_BASE_URL}/products`);
