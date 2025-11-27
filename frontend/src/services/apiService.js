@@ -1,15 +1,15 @@
 // frontend/src/services/apiService.js
 
-// Use local backend during development, deployed backend in production
+// Detect if running locally or on deployment
 const API_BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://node-fs-ecommerce.onrender.com'
-    : 'http://localhost:5000';
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:5000' // your local backend URL
+    : 'https://node-fs-ecommerce.onrender.com'; // deployed backend URL
 
-// Helper function to handle fetch responses
+// Helper to handle fetch responses
 const handleResponse = async (response) => {
   if (response.status === 200 || response.status === 304) {
-    return response.json().catch(() => ({})); // in case of empty JSON
+    return response.json().catch(() => ({})); // safe fallback for empty JSON
   } else {
     const body = await response.json().catch(() => ({}));
     throw new Error(body.error || 'Request failed');
